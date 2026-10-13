@@ -1,17 +1,18 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM serversideup/php:8.4-fpm-nginx
 
 WORKDIR /var/www/html
 
-COPY . .
+USER root
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV WEBROOT=/var/www/html/public
-ENV PHP_ERRORS_STDERR=1
-ENV RUN_SCRIPTS=1
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr
+COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-CMD ["/start.sh"]
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV LOG_CHANNEL=stderr
+ENV PHP_OPCACHE_ENABLE=1
+
+USER www-data
